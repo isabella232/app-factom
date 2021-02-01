@@ -31,7 +31,7 @@
 #include "btchip_rom_variables.h"
 #include "string.h"
 
-#include "glyphs.h"
+#include "ux.h"
 
 #define WANT_ENTRY_COMMIT_SIGN 1
 
