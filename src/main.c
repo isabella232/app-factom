@@ -195,13 +195,13 @@ volatile txContentAddress_t *addresses[MAX_OUTPUTS];
 
 bagl_element_t tmp_element;
 
-#ifdef TARGET_NANOX
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 #include "ux.h"
 ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
-#else // TARGET_NANOX
+#else // TARGET_NANOX || TARGET_NANOS2
 ux_state_t ux;
-#endif // TARGET_NANOX
+#endif // TARGET_NANOX || TARGET_NANOS2
 
 // display stepped screens
 unsigned int ux_step;
@@ -1998,7 +1998,7 @@ unsigned int ui_approval_nanos_button(unsigned int button_mask,
 
 #endif // #if defined(TARGET_NANOS)
 
-#if defined(TARGET_NANOX)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
 const char* settings_submenu_getter(unsigned int idx);
 void settings_submenu_selector(unsigned int idx);
@@ -2262,8 +2262,6 @@ void display_next_state(bool is_upper_border){
             }
         }
     }
-    
-    
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2283,7 +2281,7 @@ void ui_idle(void) {
     {
     UX_MENU_DISPLAY(0, menu_main, NULL);
     }
-#elif defined(TARGET_NANOX)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
     // reserve a display stack slot if none yet
     if(G_ux.stack_count == 0) {
         ux_stack_push();
@@ -2995,7 +2993,7 @@ void handleSign(uint8_t p1, uint8_t p2, uint8_t *workBuffer,
     ui_approval_transaction_blue_init();
 #elif defined(TARGET_NANOS)
     UX_DISPLAY(ui_approval_nanos, ui_approval_prepro);
-#elif defined(TARGET_NANOX)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
     current_output = 0;
     num_outputs = output_ct;
     current_state = STATE_BORDER;
@@ -3032,7 +3030,7 @@ void handleStoreChainId(uint8_t p1, uint8_t p2, uint8_t *workBuffer,
 #elif defined(TARGET_NANOS)
     UX_DISPLAY(ui_approval_nanos_store_chainid, ui_approval_prepro_store_chainid);
     *flags |= IO_ASYNCH_REPLY;
-#elif defined(TARGET_NANOX)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
     THROW(ERROR_TARGET_NOT_SUPPORTED);
 #endif
 
@@ -3134,7 +3132,7 @@ void handleSignRawMessageWithId(uint8_t p1, uint8_t p2, uint8_t *workBuffer,
         // UX_DISPLAY(ui_approval_nanos_id, ui_approval_prepro_id);
         *flags |= IO_ASYNCH_REPLY;
     }
-#elif defined(TARGET_NANOX)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
     THROW(ERROR_TARGET_NOT_SUPPORTED);
 #endif
 
@@ -3153,7 +3151,7 @@ void handleSignMessageHash(uint8_t p1, uint8_t p2, uint8_t *workBuffer,
     {
     case P1_FIRST:
     {
-        char sign_magic[32];  
+        char sign_magic[32];
         int sign_magic_len = 0;
         os_memset(&tmpCtx.messageSigningContext,0,sizeof(tmpCtx.messageSigningContext));
         os_memset(sign_magic, 0, sizeof(sign_magic));
@@ -3331,7 +3329,7 @@ void handleSignMessageHash(uint8_t p1, uint8_t p2, uint8_t *workBuffer,
         UX_DISPLAY(ui_approval_nanos_id, ui_approval_prepro_id);
         *flags |= IO_ASYNCH_REPLY;
     }
-#elif defined(TARGET_NANOX)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
     THROW(ERROR_TARGET_NOT_SUPPORTED);
 #endif
 
@@ -3480,7 +3478,7 @@ void handleCommitSign(uint8_t p1, uint8_t p2, uint8_t *workBuffer,
     ui_approval_transaction_blue_init();
 #elif defined(TARGET_NANOS)
     UX_DISPLAY(ui_approval_nanos_id, ui_approval_prepro_id);
-#elif defined(TARGET_NANOX)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
     THROW(ERROR_TARGET_NOT_SUPPORTED);
 #endif // #if TARGET
 
@@ -3513,7 +3511,7 @@ void handleApdu(volatile unsigned int *flags, volatile unsigned int *tx) {
                            G_io_apdu_buffer + OFFSET_CDATA,
                            G_io_apdu_buffer[OFFSET_LC], flags, tx);
                 break;
-#ifndef TARGET_NANOX
+#if !defined(TARGET_NANOX) && !defined(TARGET_NANOS2)
 
 #if WANT_ENTRY_COMMIT_SIGN
             case INS_COMMIT_SIGN:
@@ -3544,7 +3542,7 @@ void handleApdu(volatile unsigned int *flags, volatile unsigned int *tx) {
                 break;
 #endif
 
-#endif // TARGET_NANOX
+#endif // TARGET_NANOX && TARGET_NANOS2
             case INS_GET_APP_CONFIGURATION:
                 handleGetAppConfiguration(
                     G_io_apdu_buffer[OFFSET_P1], G_io_apdu_buffer[OFFSET_P2],
